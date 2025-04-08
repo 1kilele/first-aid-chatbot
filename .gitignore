@@ -1,0 +1,16 @@
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyd
+*.dll
+*.h5
+*.so
+*.exe
+*.zip
+build/
+dist/
+*.egg-info/
+.env
+*.log
+

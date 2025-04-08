@@ -1,0 +1,84 @@
+[
+    {
+    "intents": [
+        {
+            "tag": "greeting",
+            "patterns": ["Hello", "Hi", "Hey", "Good morning", "Good evening"],
+            "responses": ["Hello! How can I assist you with first aid today?", "Hi there! Do you need any first aid guidance?", "Hey! How can I help you stay safe?"]
+        },
+        {
+            "tag": "goodbye",
+            "patterns": ["Bye", "Goodbye", "See you later", "Take care"],
+            "responses": ["Goodbye! Stay safe!", "See you later! Remember, safety first!", "Take care and be prepared for emergencies!"]
+        },
+        {
+            "tag": "thanks",
+            "patterns": ["Thanks", "Thank you", "Appreciate it"],
+            "responses": ["You're welcome! Stay safe!", "Glad to help! Let me know if you need more first aid advice!", "Anytime! Always be prepared!"]
+        },
+        {
+            "tag": "cpr",
+            "patterns": ["How do I perform CPR?", "CPR steps", "How to do CPR?"],
+            "responses": ["To perform CPR, place the person on a firm surface, push hard and fast in the center of their chest (about 100-120 compressions per minute), and give rescue breaths if trained. Call emergency services immediately!"]
+        },
+        {
+            "tag": "choking",
+            "patterns": ["What to do if someone is choking?", "How do I help a choking person?"],
+            "responses": ["For adults and children, perform the Heimlich maneuver: Stand behind them, place your hands above their navel, and push in and up sharply. For infants, give five back slaps followed by five chest thrusts. Call emergency services if they don't respond!"]
+        },
+        {
+            "tag": "burns",
+            "patterns": ["How to treat a burn?", "What to do for a burn?", "First aid for burns"],
+            "responses": ["For minor burns, run cool water over the area for 10-20 minutes, apply a sterile dressing, and avoid popping blisters. For severe burns, do not apply ice or ointments—cover with a clean cloth and seek medical help immediately!"]
+        },
+        {
+            "tag": "cuts_bleeding",
+            "patterns": [
+                "How to stop bleeding?", "What to do for a deep cut?", "How to treat a wound?", "I have a cut", "I got a cut", "I'm bleeding", "My wound is bleeding", "I have an open wound", "How do I stop my cut from bleeding?", "My finger is bleeding, what should I do?"
+            ],
+            "responses": ["Apply firm pressure with a clean cloth to stop the bleeding. If the cut is deep or bleeding doesn’t stop, seek medical attention. Keep the wound clean and apply a bandage to prevent infection."]
+        },
+        {
+            "tag": "first_aid_kit",
+            "patterns": ["What should be in a first aid kit?", "First aid kit essentials", "What do I need in my first aid kit?"],
+            "responses": ["A first aid kit should include bandages, antiseptic wipes, adhesive tape, sterile gauze, scissors, tweezers, pain relievers, gloves, and an emergency contact list."]
+        },
+        {
+            "tag": "allergic_reaction",
+            "patterns": ["What to do for an allergic reaction?", "First aid for allergies", "How to treat an allergic reaction?"],
+            "responses": ["For mild reactions, give an antihistamine. For severe reactions (anaphylaxis), use an epinephrine auto-injector (EpiPen) and seek emergency help immediately!"]
+        },
+        {
+            "tag": "heatstroke",
+            "patterns": ["How to treat heatstroke?", "Symptoms of heatstroke", "What to do in a heatstroke?"],
+            "responses": ["Move the person to a cool place, remove excess clothing, and apply cool water or ice packs to their body. Give them small sips of water if they are conscious. Seek medical help immediately."]
+        },
+        {
+            "tag": "hypothermia",
+            "patterns": ["What to do for hypothermia?", "How to treat hypothermia?"],
+            "responses": ["Move the person to a warm place, remove wet clothing, wrap them in warm blankets, and offer warm fluids if conscious. Seek medical help immediately."]
+        },
+        {
+            "tag": "seizures",
+            "patterns": ["What to do during a seizure?", "First aid for seizures"],
+            "responses": ["Protect the person from injury by clearing the area, place them on their side, and do not put anything in their mouth. Seek medical help if the seizure lasts more than 5 minutes."]
+        },
+        {
+            "tag": "insect_bites",
+            "patterns": ["How to treat an insect bite?", "What to do for a bee sting?"],
+            "responses": ["Wash the area with soap and water, apply a cold compress to reduce swelling, and take an antihistamine if needed. Seek medical help if there's a severe allergic reaction."]
+        },
+        {
+            "tag": "drowning",
+            "patterns": ["How to help a drowning person?", "First aid for drowning"],
+            "responses": ["Call emergency services immediately. If safe, remove the person from the water, check for breathing, and begin CPR if they are unresponsive."]
+        },
+        {
+            "tag": "chatbot_function",
+            "patterns": ["What can you do?", "How do you help?", "What is your purpose?"],
+            "responses": ["I am a First Aid Assistant! I provide guidance on handling medical emergencies, minor injuries, and general first aid procedures. How can I help you?"]
+        }
+    ]
+}
+]
+
