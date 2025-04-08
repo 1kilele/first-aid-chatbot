@@ -1,69 +1,109 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>First Aid Chatbot</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: #f2f2f2;
-            margin: 0;
+            background: #f4f4f4;
             padding: 0;
+            margin: 0;
         }
-        #chatbox {
+        .chat-container {
+            width: 100%;
             max-width: 600px;
-            margin: 50px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        .messages {
+            height: 400px;
+            overflow-y: auto;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 15px;
+            padding-right: 10px;
         }
         .message {
-            margin-bottom: 15px;
+            padding: 8px 10px;
+            margin: 5px 0;
+            border-radius: 6px;
         }
         .user {
+            background: #d1ecf1;
             text-align: right;
-            color: blue;
         }
         .bot {
+            background: #e2e3e5;
             text-align: left;
-            color: green;
         }
-        input[type="text"] {
-            width: 80%;
+        .input-area {
+            display: flex;
+        }
+        input {
+            flex: 1;
             padding: 10px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
         }
         button {
             padding: 10px;
+            background: #28a745;
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            margin-left: 10px;
         }
     </style>
 </head>
 <body>
-    <div id="chatbox">
-        <div id="messages"></div>
-        <input type="text" id="userInput" placeholder="Type your message...">
-        <button onclick="sendMessage()">Send</button>
+    <div class="chat-container">
+        <div class="messages" id="chat-box"></div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Type your message here...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
     </div>
 
     <script>
-        async function sendMessage() {
-            const input = document.getElementById("userInput");
-            const message = input.value;
+        function addMessage(text, sender) {
+            const box = document.getElementById("chat-box");
+            const msg = document.createElement("div");
+            msg.className = `message ${sender}`;
+            msg.textContent = text;
+            box.appendChild(msg);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function sendMessage() {
+            const input = document.getElementById("user-input");
+            const message = input.value.trim();
             if (!message) return;
 
-            const messagesDiv = document.getElementById("messages");
-
-            messagesDiv.innerHTML += `<div class='message user'>${message}</div>`;
+            addMessage(message, "user");
             input.value = "";
 
-            const response = await fetch("/send", {
+            fetch("/send", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ message: message })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.response) {
+                    addMessage(data.response, "bot");
+                } else {
+                    addMessage("Oops! Something went wrong.", "bot");
+                }
+            })
+            .catch(err => {
+                console.error("Error:", err);
+                addMessage("Server error. Try again later.", "bot");
             });
-
-            const data = await response.json();
-            messagesDiv.innerHTML += `<div class='message bot'>${data.response}</div>`;
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
     </script>
 </body>
