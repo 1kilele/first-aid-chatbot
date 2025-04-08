@@ -1,53 +1,71 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>First Aid Chatbot</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 40px; }
-    #chatbox { width: 100%; max-width: 600px; margin: auto; }
-    .msg { padding: 10px; margin: 5px 0; border-radius: 5px; }
-    .user { background: #d1e7dd; text-align: right; }
-    .bot { background: #f8d7da; text-align: left; }
-    input, button { padding: 10px; width: 70%; }
-    button { width: 28%; }
-  </style>
+    <title>First Aid Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+        #chatbox {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .message {
+            margin-bottom: 15px;
+        }
+        .user {
+            text-align: right;
+            color: blue;
+        }
+        .bot {
+            text-align: left;
+            color: green;
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+        }
+        button {
+            padding: 10px;
+        }
+    </style>
 </head>
 <body>
-  <div id="chatbox"></div>
-  <div style="text-align:center;">
-    <input type="text" id="userInput" placeholder="Type your message..."/>
-    <button onclick="sendMessage()">Send</button>
-  </div>
+    <div id="chatbox">
+        <div id="messages"></div>
+        <input type="text" id="userInput" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
 
-  <script>
-    async function sendMessage() {
-      const inputField = document.getElementById("userInput");
-      const message = inputField.value;
-      if (!message.trim()) return;
+    <script>
+        async function sendMessage() {
+            const input = document.getElementById("userInput");
+            const message = input.value;
+            if (!message) return;
 
-      appendMessage(message, "user");
+            const messagesDiv = document.getElementById("messages");
 
-      const response = await fetch("/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
-      });
+            messagesDiv.innerHTML += `<div class='message user'>${message}</div>`;
+            input.value = "";
 
-      const data = await response.json();
-      appendMessage(data.response, "bot");
+            const response = await fetch("/send", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: message })
+            });
 
-      inputField.value = "";
-    }
-
-    function appendMessage(text, sender) {
-      const msgBox = document.createElement("div");
-      msgBox.className = `msg ${sender}`;
-      msgBox.textContent = text;
-      document.getElementById("chatbox").appendChild(msgBox);
-    }
-  </script>
+            const data = await response.json();
+            messagesDiv.innerHTML += `<div class='message bot'>${data.response}</div>`;
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+    </script>
 </body>
 </html>
 
