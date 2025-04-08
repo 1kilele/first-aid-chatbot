@@ -3,9 +3,8 @@ import random
 import nltk
 from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-import os
 
 # Use local NLTK data
 nltk.data.path.append(r"C:\Users\oukoa\AppData\Roaming\nltk_data")
@@ -58,6 +57,12 @@ def get_response(user_input):
 
     return "I'm not sure how to respond to that. Can you rephrase?"
 
+
+@app.route("/")
+def home():
+    """Serve the index.html for the home page."""
+    return render_template("index.html")
+
 @app.route("/send", methods=["POST"])
 def chat():
     """Handles incoming POST requests with a message and returns chatbot response."""
@@ -72,7 +77,9 @@ def chat():
     return jsonify({"response": response})
 
 if __name__ == "__main__":
-    # Explicitly get the port from the environment, with a fallback to 5000
-    port = int(os.environ.get("PORT", 5000))
+    import os
+
+    # Port configuration for Railway or any platform that uses different port
+    port = int(os.environ.get("PORT", 8080))  
     app.run(host='0.0.0.0', port=port)
 
