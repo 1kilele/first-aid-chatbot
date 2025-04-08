@@ -74,9 +74,8 @@ def chat():
 
     return jsonify({"response": response})
 
-if __name__ == "__main__":
-    import os
 
-port = int(os.environ.get("PORT", 5000))
-app.run(host='0.0.0.0', port=port)  # Use 0.0.0.0 to allow access from any address
+if __name__ == "__main__":
+    # No need to specify the port manually
+    app.run(host='0.0.0.0')  # Let Railway handle the port
 
