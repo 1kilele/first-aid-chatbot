@@ -7,14 +7,14 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import os
 
-# Ensure NLTK data is available
+# Download required NLTK data
 nltk.download("punkt")
 
 # Flask setup
 app = Flask(__name__, template_folder='templates')
 CORS(app)
 
-# Load intents
+# Load intents file
 with open("intents.json", "r", encoding="utf-8") as file:
     intents = json.load(file)
 
@@ -22,13 +22,12 @@ stemmer = PorterStemmer()
 
 def preprocess_text(text):
     tokens = word_tokenize(text.lower())
-    stemmed = [stemmer.stem(word) for word in tokens]
-    return stemmed
+    return [stemmer.stem(word) for word in tokens]
 
 def get_response(user_input):
     user_tokens = preprocess_text(user_input)
     best_match = None
-    best_score = 0.0
+    best_score = 0
 
     for intent in intents["intents"]:
         for pattern in intent["patterns"]:
@@ -45,21 +44,25 @@ def get_response(user_input):
     
     return "I'm not sure how to respond to that. Can you rephrase?"
 
-# Route to serve the HTML page
+# Route for the main page
 @app.route("/")
 def home():
     return render_template("index.html")
 
-# Endpoint to receive chat messages
+# Route to handle chat POST requests
 @app.route("/send", methods=["POST"])
-def chat():
-    data = request.get_json()
-    if not data or "message" not in data:
-        return jsonify({"error": "Invalid request"}), 400
-    
-    user_input = data["message"]
-    response = get_response(user_input)
-    return jsonify({"response": response})
+def send():
+    try:
+        data = request.get_json(force=True)
+        message = data.get("message", "")
+        if not message:
+            return jsonify({"response": "Please type something!"})
+        
+        reply = get_response(message)
+        return jsonify({"response": reply})
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"response": "Sorry, I'm having trouble responding right now."}), 500
 
 # Run the app
 if __name__ == "__main__":
