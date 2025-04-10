@@ -7,14 +7,15 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import os
 
-# Download required NLTK data
-nltk.download("punkt")
+# Ensure NLTK data is available and set path explicitly
+nltk.download("punkt", download_dir='/usr/share/nltk_data')
+nltk.data.path.append("/usr/share/nltk_data")
 
 # Flask setup
 app = Flask(__name__, template_folder='templates')
 CORS(app)
 
-# Load intents file
+# Load intents
 with open("intents.json", "r", encoding="utf-8") as file:
     intents = json.load(file)
 
@@ -22,14 +23,11 @@ stemmer = PorterStemmer()
 
 def preprocess_text(text):
     tokens = word_tokenize(text.lower())
-    return [stemmer.stem(word) for word in tokens]
-
+    stemmed = [stemmer.stem(word) for word in tokens]
+    return stemmed
 
 def get_response(user_input):
-    print(f"User input: {user_input}")
     user_tokens = preprocess_text(user_input)
-    print(f"Processed input tokens: {user_tokens}")
-    
     best_match = None
     best_score = 0.0
 
@@ -37,44 +35,36 @@ def get_response(user_input):
         for pattern in intent["patterns"]:
             pattern_tokens = preprocess_text(pattern)
             common = set(user_tokens).intersection(pattern_tokens)
-            score = len(common) / len(pattern_tokens)
-
-            print(f"Comparing with pattern: {pattern}")
-            print(f"Pattern tokens: {pattern_tokens}")
-            print(f"Common tokens: {common}")
-            print(f"Score: {score}")
+            score = len(common) / len(pattern_tokens) if pattern_tokens else 0
 
             if score > best_score:
                 best_score = score
                 best_match = intent
 
-    print(f"Best score: {best_score}")
-    print(f"Matched intent: {best_match['tag'] if best_match else None}")
-
     if best_match and best_score >= 0.3:
         return random.choice(best_match["responses"])
     
-    return "Sorry, I'm having trouble responding right now."
+    return "I'm not sure how to respond to that. Can you rephrase?"
 
-# Route for the main page
+# Route to serve the HTML page
 @app.route("/")
 def home():
     return render_template("index.html")
 
-# Route to handle chat POST requests
+# Endpoint to receive chat messages
 @app.route("/send", methods=["POST"])
-def send():
+def chat():
     try:
-        data = request.get_json(force=True)
-        message = data.get("message", "")
-        if not message:
-            return jsonify({"response": "Please type something!"})
-        
-        reply = get_response(message)
-        return jsonify({"response": reply})
+        data = request.get_json()
+        if not data or "message" not in data:
+            return jsonify({"response": "Invalid request."}), 400
+
+        user_input = data["message"]
+        response = get_response(user_input)
+        return jsonify({"response": response})
     except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({"response": "Sorry, I'm having trouble responding right now."}), 500
+        print("Error:", e)
+        return jsonify({"response": "Sorry, I'm having trouble responding right now."})
 
 # Run the app
 if __name__ == "__main__":
