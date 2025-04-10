@@ -1,68 +1,46 @@
-import json
-import random
+import logging
 import nltk
-from nltk.tokenize import word_tokenize
-from nltk.stem import PorterStemmer
-from flask import Flask, request, jsonify, render_template
-from flask_cors import CORS
-import os
+from flask import Flask, request, jsonify
 
-# Flask setup
-app = Flask(__name__, template_folder='templates')
-CORS(app)
+# Download punkt tokenizer for NLTK if not already downloaded
+try:
+    nltk.download('punkt')  # Ensure we are downloading 'punkt' and not 'punkt_tab'
+except Exception as e:
+    logging.error(f"Error downloading 'punkt': {e}")
 
-# Download the punkt data for NLTK (only if not already available)
-nltk.download('punkt')
+# Initialize Flask app
+app = Flask(__name__)
 
-# Load intents
-with open("intents.json", "r", encoding="utf-8") as file:
-    intents = json.load(file)
-
-stemmer = PorterStemmer()
-
+# Example function to preprocess text
 def preprocess_text(text):
+    from nltk.tokenize import word_tokenize
+    # Tokenize the input text
     tokens = word_tokenize(text.lower())
-    stemmed = [stemmer.stem(word) for word in tokens]
-    return stemmed
+    return tokens
 
+# Function to generate a response based on user input
 def get_response(user_input):
     user_tokens = preprocess_text(user_input)
-    best_match = None
-    best_score = 0.0
+    # Example: Respond with tokenized input for now
+    response = f"Tokens: {user_tokens}"
+    return response
 
-    for intent in intents["intents"]:
-        for pattern in intent["patterns"]:
-            pattern_tokens = preprocess_text(pattern)
-            common = set(user_tokens).intersection(pattern_tokens)
-            score = len(common) / len(pattern_tokens)
-
-            if score > best_score:
-                best_score = score
-                best_match = intent
-
-    if best_match and best_score >= 0.3:
-        return random.choice(best_match["responses"])
-    
-    return "I'm not sure how to respond to that. Can you rephrase?"
-
-# Route to serve the HTML page
-@app.route("/")
-def home():
-    return render_template("index.html")
-
-# Endpoint to receive chat messages
 @app.route("/send", methods=["POST"])
 def chat():
-    data = request.get_json()
-    if not data or "message" not in data:
-        return jsonify({"error": "Invalid request"}), 400
-    
-    user_input = data["message"]
-    response = get_response(user_input)
-    return jsonify({"response": response})
+    try:
+        data = request.get_json()
+        user_input = data.get("message")
+        if not user_input:
+            return jsonify({"response": "Please send a message."}), 400
 
-# Run the app
+        # Get response based on user input
+        response = get_response(user_input)
+        return jsonify({"response": response})
+    
+    except Exception as e:
+        logging.error(f"Error: {e}")
+        return jsonify({"response": "Sorry, I'm having trouble responding right now."}), 500
+
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True, host='0.0.0.0', port=8080)
 
