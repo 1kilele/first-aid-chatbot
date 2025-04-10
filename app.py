@@ -7,15 +7,12 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import os
 
-# Ensure NLTK data is available (download punkt if missing)
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
-    nltk.download('punkt')
-
 # Flask setup
 app = Flask(__name__, template_folder='templates')
 CORS(app)
+
+# Download the punkt data for NLTK (only if not already available)
+nltk.download('punkt')
 
 # Load intents
 with open("intents.json", "r", encoding="utf-8") as file:
