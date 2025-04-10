@@ -24,10 +24,14 @@ def preprocess_text(text):
     tokens = word_tokenize(text.lower())
     return [stemmer.stem(word) for word in tokens]
 
+
 def get_response(user_input):
+    print(f"User input: {user_input}")
     user_tokens = preprocess_text(user_input)
+    print(f"Processed input tokens: {user_tokens}")
+    
     best_match = None
-    best_score = 0
+    best_score = 0.0
 
     for intent in intents["intents"]:
         for pattern in intent["patterns"]:
@@ -35,14 +39,22 @@ def get_response(user_input):
             common = set(user_tokens).intersection(pattern_tokens)
             score = len(common) / len(pattern_tokens)
 
+            print(f"Comparing with pattern: {pattern}")
+            print(f"Pattern tokens: {pattern_tokens}")
+            print(f"Common tokens: {common}")
+            print(f"Score: {score}")
+
             if score > best_score:
                 best_score = score
                 best_match = intent
 
+    print(f"Best score: {best_score}")
+    print(f"Matched intent: {best_match['tag'] if best_match else None}")
+
     if best_match and best_score >= 0.3:
         return random.choice(best_match["responses"])
     
-    return "I'm not sure how to respond to that. Can you rephrase?"
+    return "Sorry, I'm having trouble responding right now."
 
 # Route for the main page
 @app.route("/")
