@@ -103,15 +103,18 @@
 
             const chatBox = document.getElementById("chat-box");
 
-            // Show user message
             const userMessage = document.createElement("div");
             userMessage.classList.add("user-message", "chat-message");
             userMessage.textContent = message;
             chatBox.appendChild(userMessage);
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            // Send to backend
-            fetch(window.location.origin + "/send", {
+            // ✅ Dynamically choose API URL
+            const apiUrl = location.hostname.includes("railway")
+                ? "https://web-production-7a414.up.railway.app/send"
+                : "/send";
+
+            fetch(apiUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ message: message })
@@ -146,4 +149,5 @@
     </script>
 </body>
 </html>
+
 
