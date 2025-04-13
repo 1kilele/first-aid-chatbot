@@ -95,21 +95,22 @@
         </div>
     </div>
 
+    
     <script>
         function sendMessage() {
             const inputField = document.getElementById("user-input");
             const message = inputField.value.trim();
             if (message === "") return;
-
+    
             const chatBox = document.getElementById("chat-box");
-
+    
             // Show user message
             const userMessage = document.createElement("div");
             userMessage.classList.add("user-message", "chat-message");
             userMessage.textContent = message;
             chatBox.appendChild(userMessage);
             chatBox.scrollTop = chatBox.scrollHeight;
-
+    
             // Send to backend
             fetch("/send", {
                 method: "POST",
@@ -117,10 +118,11 @@
                 body: JSON.stringify({ message: message })
             })
             .then(response => {
-                if (!response.ok) throw new Error("Network response was not ok");
+                if (!response.ok) throw new Error("HTTP status " + response.status);
                 return response.json();
             })
             .then(data => {
+                console.log("Response from server:", data); // Debug line
                 const botMessage = document.createElement("div");
                 botMessage.classList.add("bot-message", "chat-message");
                 botMessage.textContent = data.response || "Oops! Something went wrong.";
@@ -128,21 +130,22 @@
                 chatBox.scrollTop = chatBox.scrollHeight;
             })
             .catch(error => {
-                console.error("Error:", error);
+                console.error("Fetch error:", error); // Debug line
                 const botMessage = document.createElement("div");
                 botMessage.classList.add("bot-message", "chat-message");
-                botMessage.textContent = "Sorry, I'm having trouble responding right now.";
+                botMessage.textContent = "Fetch error: " + error.message;
                 chatBox.appendChild(botMessage);
             });
-
+    
             inputField.value = "";
         }
-
+    
         function handleKeyPress(event) {
             if (event.key === "Enter") {
                 sendMessage();
             }
         }
     </script>
+    
 </body>
 </html>

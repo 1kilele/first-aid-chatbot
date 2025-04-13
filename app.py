@@ -1,56 +1,91 @@
-import os
+import json
+import random
 import nltk
+from nltk.tokenize import word_tokenize
+from nltk.stem import PorterStemmer
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-from nltk.tokenize import word_tokenize
+import os
+import logging
 
-# Ensure that the necessary NLTK data is available (punkt)
-nltk.download('punkt')
+# Set up logging for debugging
+logging.basicConfig(level=logging.DEBUG)
 
-# Initialize Flask app
-app = Flask(__name__)
-CORS(app)  # Enable Cross-Origin Resource Sharing (CORS)
+# Flask setup
+app = Flask(__name__, template_folder='templates')
+CORS(app)
 
+# Download the punkt data for NLTK (only if not already available)
+try:
+    nltk.download('punkt')
+except Exception as e:
+    logging.error(f"Error downloading 'punkt': {e}")
+
+# Load intents
+try:
+    with open("intents.json", "r", encoding="utf-8") as file:
+        intents = json.load(file)
+except Exception as e:
+    logging.error(f"Error loading intents: {e}")
+    intents = {}
+
+stemmer = PorterStemmer()
+
+def preprocess_text(text):
+    try:
+        tokens = word_tokenize(text.lower())
+        stemmed = [stemmer.stem(word) for word in tokens]
+        return stemmed
+    except Exception as e:
+        logging.error(f"Error preprocessing text: {e}")
+        return []
+
+def get_response(user_input):
+    try:
+        user_tokens = preprocess_text(user_input)
+        best_match = None
+        best_score = 0.0
+
+        for intent in intents.get("intents", []):
+            for pattern in intent.get("patterns", []):
+                pattern_tokens = preprocess_text(pattern)
+                common = set(user_tokens).intersection(pattern_tokens)
+                score = len(common) / len(pattern_tokens)
+
+                if score > best_score:
+                    best_score = score
+                    best_match = intent
+
+        if best_match and best_score >= 0.3:
+            return random.choice(best_match["responses"])
+
+        return "I'm not sure how to respond to that. Can you rephrase?"
+    except Exception as e:
+        logging.error(f"Error getting response: {e}")
+        return "Sorry, I encountered an error while processing your message."
+
+# Route to serve the HTML page
 @app.route("/")
 def home():
-    return render_template("index.html")  # This will render the HTML page
+    return render_template("index.html")
 
+# Endpoint to receive chat messages
 @app.route("/send", methods=["POST"])
 def chat():
     try:
-        # Extract the message from the POST request
-        user_input = request.json.get("message")
-        
-        if not user_input:
-            return jsonify({"response": "Please provide a valid message."}), 400
-        
-        # Get the response based on the user input
+        data = request.get_json()
+        if not data or "message" not in data:
+            return jsonify({"error": "Invalid request"}), 400
+
+        user_input = data["message"]
         response = get_response(user_input)
-        
-        # Send back the response
         return jsonify({"response": response})
-
     except Exception as e:
-        return jsonify({"response": f"Sorry, I'm having trouble responding right now. Error: {str(e)}"}), 500
+        logging.error(f"Error in /send endpoint: {e}")
+        return jsonify({"response": "Sorry, I'm having trouble responding right now."})
 
-def preprocess_text(text):
-    # Tokenize the text to process it
-    tokens = word_tokenize(text.lower())  # Converting text to lowercase
-    return tokens
-
-def get_response(user_input):
-    # Tokenize the input text
-    user_tokens = preprocess_text(user_input)
-
-    # Basic response logic based on keywords in the user input
-    if "cut" in user_tokens:
-        return "To treat a cut, clean the wound with water, apply pressure to stop bleeding, and cover it with a clean bandage."
-    elif "burn" in user_tokens:
-        return "For burns, cool the area with cold water for at least 10 minutes and cover with a sterile bandage."
-    else:
-        return "Sorry, I didn't understand that. Can you give me more details?"
-
+# Run the app
 if __name__ == "__main__":
-    # Running the Flask app
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
 
