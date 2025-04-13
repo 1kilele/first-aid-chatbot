@@ -1,3 +1,4 @@
+ 
 import json
 import random
 import nltk
@@ -60,12 +61,9 @@ def get_response(user_input):
             return random.choice(best_match["responses"])
 
         return "I'm not sure how to respond to that. Can you rephrase?"
-   
-   except Exception as e:
-    import traceback
-    logging.error(f"Error getting response: {e}")
-    logging.error(traceback.format_exc())
-    return "Sorry, I encountered an error while processing your message."
+    except Exception as e:
+        logging.error(f"Error getting response: {e}")
+        return "Sorry, I encountered an error while processing your message."
 
 # Route to serve the HTML page
 @app.route("/")
@@ -91,4 +89,3 @@ def chat():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port)
-
